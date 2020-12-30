@@ -6,14 +6,33 @@
 #include <cstdint>
 #include <string>
 
+struct dataNode {
+    uint64_t firstIndex;
+    uint64_t lastIndex;
+    string data;
+};
+struct cmp {
+	bool operator()(dataNode n1,dataNode n2) { 
+		return n1.firstIndex < n2.firstIndex; // 
+	}
+};
+
 //! \brief A class that assembles a series of excerpts from a byte stream (possibly out of order,
 //! possibly overlapping) into an in-order byte stream.
 class StreamReassembler {
   private:
     // Your code here -- add private members as necessary.
 
+	// _output.buffer_size + unassembled_bytes_count <= capacity;
+
     ByteStream _output;  //!< The reassembled in-order byte stream
     size_t _capacity;    //!< The maximum number of bytes
+
+    // my data structures
+    std::set<dataNode,cmp> setNode = std::set<dataNode,cmp>();
+    uint64_t nextByteIndex;
+    size_t unassembled_bytes_count;
+    uint64_t finalByteIndex; //
 
   public:
     //! \brief Construct a `StreamReassembler` that will store up to `capacity` bytes.
@@ -30,6 +49,9 @@ class StreamReassembler {
     //! \param index indicates the index (place in sequence) of the first byte in `data`
     //! \param eof the last byte of `data` will be the last byte in the entire stream
     void push_substring(const std::string &data, const uint64_t index, const bool eof);
+    void mergePreNode(std::set<dataNode, cmp>::iterator &preitor, dataNode &DataNode);
+    void mergeNextNode(std::set<dataNode, cmp>::iterator &nextitor, dataNode &DataNode) 
+
 
     //! \name Access the reassembled byte stream
     //!@{
