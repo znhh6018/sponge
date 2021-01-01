@@ -34,29 +34,25 @@ void StreamReassembler::push_substring(const string &data, const uint64_t index,
     //!think of duplicate or overlapping
     dataNode curDataNode{index, index + curDataSize - 1, data};
     auto itor = setNode.lower_bound(curDataNode);
-    if (itor == setNode.end()) {
-        setNode.insert(curDataNode);
-        unassembled_bytes_count += curDataSize;
-    } else {
-		//! merge pre
-		if (itor != setNode.begin()){
-            auto preitor = itor;
-            --preitor;
-            if (curDataNode.firstIndex <= preitor->lastIndex && curDataNode.lastIndex > preitor->lastIndex) {
-                mergePreNode(preitor, curDataNode);
-                unassembled_bytes_count -= preitor->data.size();
-                setNode.erase(preitor);
-			}
-		}
-		//! merge next
-        while (itor != setNode.end() && curDataNode.lastIndex >= itor->firstIndex) {
-            mergeNextNode(itor, curDataNode);
-            unassembled_bytes_count -= itor->data.size();
-            setNode.erase(itor++);
-		}
-        setNode.insert(curDataNode);
-        unassembled_bytes_count += curDataNode.data.size();
+
+	//merge pre if exists
+    if (itor != setNode.begin()) {
+        auto preitor = itor;
+        --preitor;
+        if (curDataNode.firstIndex <= preitor->lastIndex && curDataNode.lastIndex > preitor->lastIndex) {
+            mergePreNode(preitor, curDataNode);
+            unassembled_bytes_count -= preitor->data.size();
+            setNode.erase(preitor);
+        }
+	}
+	//merge next if exists
+    while (itor != setNode.end() && curDataNode.lastIndex >= itor->firstIndex) {
+        mergeNextNode(itor, curDataNode);
+        unassembled_bytes_count -= itor->data.size();
+        setNode.erase(itor++);
     }
+    setNode.insert(curDataNode);
+    unassembled_bytes_count += curDataNode.data.size();
     //!write to stream_out
     auto begin = setNode.begin();
     while (begin != setNode.end() && begin->firstIndex == nextByteIndex) {
@@ -75,7 +71,7 @@ void StreamReassembler::mergePreNode(set<dataNode, cmp>::iterator &preitor, data
 
 void StreamReassembler::mergeNextNode(set<dataNode, cmp>::iterator &nextitor, dataNode &DataNode) {
     DataNode.lastIndex = max(DataNode.lastIndex, nextitor->lastIndex);
-    uint64_t overlapLen = preitor->lastIndex - DataNode.firstIndex + 1;
+    uint64_t overlapLen = nextitor->lastIndex - DataNode.firstIndex + 1;
     DataNode.data = DataNode.data + nextitor->data.substr(static_cast<size_t>(overlapLen));  // data[overlapLen] -- data[end]
 }
 

@@ -5,14 +5,15 @@
 
 #include <cstdint>
 #include <string>
+#include <set>
 
 struct dataNode {
     uint64_t firstIndex;
     uint64_t lastIndex;
-    string data;
+    std::string data;
 };
 struct cmp {
-	bool operator()(dataNode n1,dataNode n2) { 
+    bool operator()(const dataNode &n1, const dataNode &n2)const { 
 		return n1.firstIndex < n2.firstIndex; // 
 	}
 };
@@ -50,12 +51,12 @@ class StreamReassembler {
     //! \param eof the last byte of `data` will be the last byte in the entire stream
     void push_substring(const std::string &data, const uint64_t index, const bool eof);
     void mergePreNode(std::set<dataNode, cmp>::iterator &preitor, dataNode &DataNode);
-    void mergeNextNode(std::set<dataNode, cmp>::iterator &nextitor, dataNode &DataNode) 
+    void mergeNextNode(std::set<dataNode, cmp>::iterator &nextitor, dataNode &DataNode);
 
 
     //! \name Access the reassembled byte stream
     //!@{
-    const ByteStream &stream_out() const { return _output; }
+    //const ByteStream &stream_out() const { return _output; }
     ByteStream &stream_out() { return _output; }
     //!@}
 

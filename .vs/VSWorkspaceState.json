@@ -2,8 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\apps",
-    "\\libsponge"
+    "\\libsponge",
+    "\\tests"
   ],
-  "SelectedNode": "\\libsponge\\byte_stream.hh",
+  "SelectedNode": "\\tests\\fsm_stream_reassembler_single.cc",
   "PreviewInSolutionExplorer": false
 }
