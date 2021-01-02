@@ -34,6 +34,7 @@ class StreamReassembler {
     uint64_t nextByteIndex;
     size_t unassembled_bytes_count;
     uint64_t finalByteIndex; //
+    bool EmptysunstringWithEof_flag;
 
   public:
     //! \brief Construct a `StreamReassembler` that will store up to `capacity` bytes.
@@ -69,6 +70,7 @@ class StreamReassembler {
     //! \brief Is the internal state empty (other than the output stream)?
     //! \returns `true` if no substrings are waiting to be assembled
     bool empty() const;
+    bool EmptysunstringWithEof() const;
 };
 
 #endif  // SPONGE_LIBSPONGE_STREAM_REASSEMBLER_HH
