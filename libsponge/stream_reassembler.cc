@@ -18,7 +18,8 @@ StreamReassembler::StreamReassembler(const size_t capacity)
     , nextByteIndex(0)
     , unassembled_bytes_count(0)
     , finalByteIndex(0)
-    , EmptysubstringWithEof_flag(false) {}
+    , EmptysubstringWithEof_flag(false)
+    , iseof (false){}
 
 //! \details This function accepts a substring (aka a segment) of bytes,
 //! possibly out-of-order, from the logical stream, and assembles any newly
@@ -28,11 +29,12 @@ void StreamReassembler::push_substring(const string &data, const uint64_t index,
     // decide whether this data store or discard
     size_t curDataSize = data.size();
     if (eof) {
+        iseof = true;
         finalByteIndex = curDataSize == 0 ? index : index + curDataSize - 1;
 	}
     if (curDataSize == 0) {
         if (eof) {
-            EmptysunstringWithEof_flag = true;
+            EmptysubstringWithEof_flag = true;
         } else {
             return;
         }
@@ -81,7 +83,7 @@ void StreamReassembler::push_substring(const string &data, const uint64_t index,
          auto begin = setNode.begin();
          while (begin != setNode.end() && begin->firstIndex == nextByteIndex) {
              _output.write(begin->data);
-             size_t dataLength = data.size();
+             size_t dataLength = begin->data.size();
              nextByteIndex += static_cast<uint64_t>(dataLength);
              unassembled_bytes_count -= dataLength;
              setNode.erase(begin++);
@@ -92,8 +94,7 @@ void StreamReassembler::push_substring(const string &data, const uint64_t index,
         stream_out().end_input();
     }
 }
-void StreamReassembler::mergePreNode(set<dataNode, cmp>::iterator &preitor, dataNode &DataNode) {
-    DataNode.firstIndex = preitor->firstIndex;
+void StreamReassembler::mergePreNode(set<dataNode, cmp>::iterator &preitor, dataNode &DataNode) {   
     if (DataNode.lastIndex <= preitor->lastIndex) {
         DataNode.lastIndex = preitor->lastIndex;
         DataNode.data = preitor->data;
@@ -102,12 +103,13 @@ void StreamReassembler::mergePreNode(set<dataNode, cmp>::iterator &preitor, data
         size_t overlapLen = static_cast<size_t>(preitor->lastIndex - DataNode.firstIndex + 1);
         DataNode.data = preitor->data + DataNode.data.substr(overlapLen);  // data[overlapLen] -- data[end]
     }
+    DataNode.firstIndex = preitor->firstIndex;
 }
 
 void StreamReassembler::mergeNextNode(set<dataNode, cmp>::iterator &nextitor, dataNode &DataNode) {
     if (DataNode.lastIndex < nextitor->lastIndex) {
-        DataNode.lastIndex = nextitor->lastIndex;
         size_t overlapLen = static_cast<size_t>(DataNode.lastIndex - nextitor->firstIndex + 1);
+        DataNode.lastIndex = nextitor->lastIndex;       
         DataNode.data = DataNode.data + nextitor->data.substr(overlapLen);  // data[overlapLen] -- data[end]
     }
 }
@@ -115,5 +117,6 @@ void StreamReassembler::mergeNextNode(set<dataNode, cmp>::iterator &nextitor, da
 size_t StreamReassembler::unassembled_bytes() const { return unassembled_bytes_count; }
 
 bool StreamReassembler::empty() const { 
-	return EmptysunstringWithEof_flag ? nextByteIndex == finalByteIndex : nextByteIndex == finalByteIndex + 1;
+	return EmptysubstringWithEof_flag ? nextByteIndex == finalByteIndex
+                                      : iseof && nextByteIndex == finalByteIndex + 1;
 }
