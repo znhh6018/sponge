@@ -5,6 +5,6 @@
     "\\libsponge",
     "\\tests"
   ],
-  "SelectedNode": "\\tests\\fsm_stream_reassembler_single.cc",
+  "SelectedNode": "\\tests\\fsm_stream_reassembler_cap.cc",
   "PreviewInSolutionExplorer": false
 }

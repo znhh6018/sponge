@@ -18,7 +18,7 @@ StreamReassembler::StreamReassembler(const size_t capacity)
     , nextByteIndex(0)
     , unassembled_bytes_count(0)
     , finalByteIndex(0)
-    , EmptysunstringWithEof_flag(false) {}
+    , EmptysubstringWithEof_flag(false) {}
 
 //! \details This function accepts a substring (aka a segment) of bytes,
 //! possibly out-of-order, from the logical stream, and assembles any newly
@@ -32,22 +32,23 @@ void StreamReassembler::push_substring(const string &data, const uint64_t index,
 	}
     if (curDataSize == 0) {
         if (eof) {
-            EmptysunstringWithEof = true;
+            EmptysunstringWithEof_flag = true;
         } else {
             return;
         }
     } else {
-         //size_t curLength = _output.buffer_size() + unassembled_bytes();
-         //if (curDataSize + curLength > _capacity) {
-         //    size_t writes = curDataSize + curLength - _capacity;
-         //    data = data.substr(0, writes);
-         //    curDataSize = writes;
-         //}
          //!push string data into setNode and merge
          //!think of duplicate or overlapping
          dataNode curDataNode{index, index + curDataSize - 1, data};
-         auto itor = setNode.lower_bound(curDataNode);
-		 
+		 if (nextByteIndex > curDataNode.firstIndex && nextByteIndex <= curDataNode.lastIndex) {
+             uint64_t writed = nextByteIndex - curDataNode.firstIndex;
+             curDataNode.data = curDataNode.data.substr(static_cast<size_t>(writed));
+             curDataNode.firstIndex = curDataNode.firstIndex + writed;
+			
+		 } else if (nextByteIndex > curDataNode.lastIndex) {
+             return;
+		 }
+         auto itor = setNode.lower_bound(curDataNode);		 
          // merge pre if exists
          if (itor != setNode.begin()) {
              auto preitor = itor;
@@ -116,4 +117,3 @@ size_t StreamReassembler::unassembled_bytes() const { return unassembled_bytes_c
 bool StreamReassembler::empty() const { 
 	return EmptysunstringWithEof_flag ? nextByteIndex == finalByteIndex : nextByteIndex == finalByteIndex + 1;
 }
-bool EmptysunstringWithEof() const { return EmptysunstringWithEof_flag; }
