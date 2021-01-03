@@ -3,8 +3,9 @@
     "",
     "\\apps",
     "\\libsponge",
-    "\\tests"
+    "\\libsponge\\tcp_helpers",
+    "\\libsponge\\util"
   ],
-  "SelectedNode": "\\tests\\fsm_stream_reassembler_cap.cc",
+  "SelectedNode": "\\libsponge\\wrapping_integers.hh",
   "PreviewInSolutionExplorer": false
 }
