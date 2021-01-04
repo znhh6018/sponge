@@ -22,14 +22,14 @@ class TCPReceiver {
     
     //my data
     std::optional<WrappingInt32> synSeqno;//reset if connection ended
-    uint64_t checkpoint;
+    WrappingInt32 ackSeqno;
 
   public:
     //! \brief Construct a TCP receiver
     //!
     //! \param capacity the maximum number of bytes that the receiver will
     //!                 store in its buffers at any give time.
-    TCPReceiver(const size_t capacity) : _reassembler(capacity), _capacity(capacity),checkpoint(0),synSeqno{} {}
+    TCPReceiver(const size_t capacity) : _reassembler(capacity), _capacity(capacity),ackSeqno{},synSeqno{} {}
 
     //! \name Accessors to provide feedback to the remote TCPSender
     //!@{
