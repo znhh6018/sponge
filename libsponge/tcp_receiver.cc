@@ -11,34 +11,33 @@ void DUMMY_CODE(Targs &&... /* unused */) {}
 using namespace std;
 
 void TCPReceiver::segment_received(const TCPSegment &seg) {
-    //DUMMY_CODE(seg);
-    const TCPHeader& header = seg.header();
-    const Buffer& payLoad = seg.payload(); 
-    //decide if connection start
-    if(header.syn && !synSeqno.has_value()){
+    // DUMMY_CODE(seg);
+    const TCPHeader &header = seg.header();
+    const Buffer &payLoad = seg.payload();
+    // decide if connection start
+    if (header.syn && !synSeqno.has_value()) {
         synSeqno = header.seqno;
-        ackSeqno = header.seqno;
     }
-    if(!synSeqno.has_value()){
-        return;    
+    if (!synSeqno.has_value()) {
+        return;
     }
-    //connection start
-    size_t dataLength = payLoad.str().size() + header.syn?1:0 + header.fin?1:0;
-    
-    
-    
-    //no need to compare with the window size,has been designed in push_string
+    // SYN true,push string
     WrappingInt32 curSeqno = header.seqno;
-    uint64_t absolute_seq = unwrap(curSeqno,synSeqno,);
     string dataToPush = payLoad.copy();
-    _reassembler.push_string(dataToPush,absolute_seq,header.fin);
-    
-    
-    
-    
-    
+    uint64_t absolute_seq = unwrap(curSeqno, synSeqno, checkpoint);
+    if (dataToPush.size() != 0) {
+        _reassembler.push_substring(dataToPush, absolute_seq?absolute_seq - 1:0, header.fin);
+	}
+	//get ackseqno
+    if (!ackSeqno.has_value() || ackSeqno == curSeqno) {
+        size_t dataLength = payLoad.str().size() + header.syn ? 1 : 0 + header.fin ? 1 : 0;
+        ackSeqno = curSeqno +  WrappingInt32(dataLength);
+        checkpoint += static_cast<uint64_t>(dataLength);
+	}
 }
 
-optional<WrappingInt32> TCPReceiver::ackno() const { return {}; }
+optional<WrappingInt32> TCPReceiver::ackno() const { return ackSeqno; }
 
-size_t TCPReceiver::window_size() const { return _capacity - unassembled_bytes() -  _reassembler.stream_out().buffer_size(); }
+size_t TCPReceiver::window_size() const {
+    return _capacity - unassembled_bytes() - _reassembler.stream_out().buffer_size();
+}

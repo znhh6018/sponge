@@ -2,7 +2,6 @@
 
 #include "parser.hh"
 #include "util.hh"
-
 #include <variant>
 
 using namespace std;

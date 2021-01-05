@@ -4,8 +4,9 @@
     "\\apps",
     "\\libsponge",
     "\\libsponge\\tcp_helpers",
-    "\\libsponge\\util"
+    "\\libsponge\\util",
+    "\\tests"
   ],
-  "SelectedNode": "\\libsponge\\wrapping_integers.hh",
+  "SelectedNode": "\\libsponge\\tcp_receiver.cc",
   "PreviewInSolutionExplorer": false
 }

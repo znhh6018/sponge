@@ -58,7 +58,7 @@ class StreamReassembler {
 
     //! \name Access the reassembled byte stream
     //!@{
-    //const ByteStream &stream_out() const { return _output; }
+    const ByteStream &stream_out() const { return _output; }
     ByteStream &stream_out() { return _output; }
     //!@}
 

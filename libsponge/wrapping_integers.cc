@@ -1,5 +1,7 @@
 #include "wrapping_integers.hh"
+#include <climits>
 #define thirtySecondPowerOfTwo (0x100000000)
+#define thirtyFirstPowerOfTwo (0x80000000)
 
 // Dummy implementation of a 32-bit wrapping integer
 
@@ -33,14 +35,12 @@ WrappingInt32 wrap(uint64_t n, WrappingInt32 isn) {
 //! has a different ISN.
 uint64_t unwrap(WrappingInt32 n, WrappingInt32 isn, uint64_t checkpoint) {
     //DUMMY_CODE(n, isn, checkpoint);
-    uint64_t minDistance = 0;
-    if (n.raw_value() >= isn.raw_value()) {
-        minDistance = static_cast<uint64_t>(n.raw_value() - isn.raw_value());
-    } else {
-        minDistance = static_cast<uint64_t>(UINT_MAX - isn.raw_value() + n + 1);  // UINT_MAX
-	}
+    uint64_t minDistance = static_cast<uint64_t>(n.raw_value() - isn.raw_value());
     while (minDistance < checkpoint) {
-        minDistance += static_cast<uint64_t>(thirtySecondPowerOfTwo);
+        minDistance += thirtySecondPowerOfTwo;
 	}
-    return minDistance;
+    if (minDistance - checkpoint < thirtyFirstPowerOfTwo || minDistance < thirtySecondPowerOfTwo) {
+        return minDisTance;
+	}
+    return minDistance - thirtySecondPowerOfTwo;
 }
