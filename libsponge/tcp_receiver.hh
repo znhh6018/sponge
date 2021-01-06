@@ -7,30 +7,46 @@
 #include "wrapping_integers.hh"
 
 #include <optional>
+#include <set>
 
 //! \brief The "receiver" part of a TCP implementation.
 
 //! Receives and reassembles segments into a ByteStream, and computes
 //! the acknowledgment number and window size to advertise back to the
 //! remote TCPSender.
+
+struct windowNode {
+    windowNode() 
+		: firstIndex(0), lastIndex(0), data(""), finFlag (false){}
+    uint64_t firstIndex;  // absolute-seqno
+    uint64_t lastIndex;   // absolute-seqno
+    std::string data;
+    bool finFlag;
+};
+struct cmp {
+    bool operator()(const windowNode &w1, const windowNode &w2) const { return w1.firstIndex < w2.lastIndex; }
+};
+
 class TCPReceiver {
     //! Our data structure for re-assembling bytes.
     StreamReassembler _reassembler;
     //! The maximum number of bytes we'll store.
     size_t _capacity;
-    
-    
-    //my data
-    std::optional<WrappingInt32> synSeqno;//reset if connection ended
+
+    // my data
+    std::optional<WrappingInt32> synSeqno;  // reset if connection ended
     std::optional<WrappingInt32> ackSeqno;
-    uint64_t checkpoint;//correspond to ackSeqno
+    uint64_t checkpoint;  // correspond to ackSeqno
+    std::set<windowNode, cmp> setWindowNode = std::set<windowNode, cmp>();
+    size_t windowUsed;
 
   public:
     //! \brief Construct a TCP receiver
     //!
     //! \param capacity the maximum number of bytes that the receiver will
     //!                 store in its buffers at any give time.
-    TCPReceiver(const size_t capacity) : _reassembler(capacity), _capacity(capacity),ackSeqno{},synSeqno{},checkpoint(0) {}
+    TCPReceiver(const size_t capacity)
+        : _reassembler(capacity), _capacity(capacity), synSeqno{}, ackSeqno{}, checkpoint(0), windowUsed(0) {}
 
     //! \name Accessors to provide feedback to the remote TCPSender
     //!@{
@@ -53,6 +69,7 @@ class TCPReceiver {
     //! accepted by the receiver) and (b) the sequence number of the
     //! beginning of the window (the ackno).
     size_t window_size() const;
+    size_t window_remains() const;
     //!@}
 
     //! \brief number of bytes stored but not yet reassembled
@@ -65,7 +82,6 @@ class TCPReceiver {
     //!@{
     ByteStream &stream_out() { return _reassembler.stream_out(); }
     const ByteStream &stream_out() const { return _reassembler.stream_out(); }
-
 
     //!@}
 };

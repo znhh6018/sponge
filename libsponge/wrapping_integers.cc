@@ -36,11 +36,13 @@ WrappingInt32 wrap(uint64_t n, WrappingInt32 isn) {
 uint64_t unwrap(WrappingInt32 n, WrappingInt32 isn, uint64_t checkpoint) {
     //DUMMY_CODE(n, isn, checkpoint);
     uint64_t minDistance = static_cast<uint64_t>(n.raw_value() - isn.raw_value());
-    while (minDistance < checkpoint) {
-        minDistance += thirtySecondPowerOfTwo;
+    size_t loops = checkpoint >> 32;
+    minDistance += loops * 0x100000000;//2^32
+    if(minDistance < checkpoint) {
+        minDistance += 0x100000000;
 	}
-    if (minDistance - checkpoint < thirtyFirstPowerOfTwo || minDistance < thirtySecondPowerOfTwo) {
-        return minDisTance;
+    if (minDistance - checkpoint < 0x80000000 || minDistance < 0x100000000) {//0x80000000 2^31
+        return minDistance;
 	}
-    return minDistance - thirtySecondPowerOfTwo;
+    return minDistance - 0x100000000;
 }
