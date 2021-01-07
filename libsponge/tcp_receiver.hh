@@ -18,13 +18,17 @@
 struct windowNode {
     windowNode() 
 		: firstIndex(0), lastIndex(0), data(""), finFlag (false){}
+    windowNode(uint64_t first, uint64_t last ,std::string str,bool fin) 
+		: firstIndex(first), lastIndex(last), data(str), finFlag(fin) {}
     uint64_t firstIndex;  // absolute-seqno
     uint64_t lastIndex;   // absolute-seqno
     std::string data;
     bool finFlag;
 };
-struct cmp {
-    bool operator()(const windowNode &w1, const windowNode &w2) const { return w1.firstIndex < w2.lastIndex; }
+struct windowcmp {
+    bool operator()(const windowNode &w1, const windowNode &w2) const {
+		return w1.firstIndex < w2.firstIndex; 
+	}
 };
 
 class TCPReceiver {
@@ -37,7 +41,7 @@ class TCPReceiver {
     std::optional<WrappingInt32> synSeqno;  // reset if connection ended
     std::optional<WrappingInt32> ackSeqno;
     uint64_t checkpoint;  // correspond to ackSeqno
-    std::set<windowNode, cmp> setWindowNode = std::set<windowNode, cmp>();
+    std::set<windowNode, windowcmp> setWindowNode = std::set<windowNode, windowcmp>();
     size_t windowUsed;
 
   public:

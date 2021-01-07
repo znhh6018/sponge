@@ -37,15 +37,15 @@ void TCPReceiver::segment_received(const TCPSegment &seg) {
         ackSeqno = curSeqno + dataLength;
         checkpoint = static_cast<uint64_t>(dataLength) + absolute_seq;
 		//check the window ,maybe something could write
-        auto itor = setWindowNode.begin();
-        while (itor != setWindowNode.end() && itor->firstIndex <= checkpoint) {
-            if (itor->lastIndex >= checkpoint) {
-                _reassembler.push_substring(itor->data, itor->firstIndex - 1, itor->finFlag);
-                size_t notcoveredLength = itor->lastIndex - checkpoint + 1 + (itor->finFlag ? 1 : 0);
-                ackSeqno += notcoveredLength;
+        auto itor_head = setWindowNode.begin();
+        while (itor_head != setWindowNode.end() && itor_head->firstIndex <= checkpoint) {
+            if (itor_head->lastIndex >= checkpoint) {
+                _reassembler.push_substring(itor_head->data, itor_head->firstIndex - 1, itor_head->finFlag);
+                size_t notcoveredLength = itor_head->lastIndex - checkpoint + 1 + (itor_head->finFlag ? 1 : 0);
+                ackSeqno = ackSeqno.value() + notcoveredLength;
                 checkpoint += notcoveredLength;			
 			}
-            setWindowNode.erase(itor++);		
+            setWindowNode.erase(itor_head++);		
 		}
     } else {  // there is a gap between checkpoint and absolute_seq ,store in the window temporarily
         windowNode curNode{ absolute_seq, absolute_seq + static_cast<uint64_t>(dataToPush.size()) - 1, dataToPush, header.fin };
@@ -84,17 +84,17 @@ void TCPReceiver::segment_received(const TCPSegment &seg) {
         windowUsed += curNode.data.size();
         if (windowUsed > window_size()) {
             size_t excessLength = windowUsed - window_remains();
-            auto itor = setWindowNode.rbegin();
-            while (itor != setWindowNode.end() && excessLength > 0) {
-                size_t datasize = itor->data.size();
+            auto itor_tail = setWindowNode.rbegin();
+            while (itor_tail != setWindowNode.end() && excessLength > 0) {
+                size_t datasize = itor_tail->data.size();
                 if (datasize <= excessLength) {
-                    setWindowNode.erase(itor++);
+                    setWindowNode.erase(itor_tail++);
                     excessLength -= datasize;
                 } else {
                     size_t remains = datasize - excessLength;
-                    itor->lastIndex = itor->firstIndex + remains - 1;
-                    itor->data = itor->data.substr(0,remains);
-                    itor->finFlag = false;
+                    itor_tail->lastIndex = itor_tail->firstIndex + remains - 1;
+                    itor_tail->data = itor_tail->data.substr(0, remains);
+                    itor_tail->finFlag = false;
                     excessLength = 0;
 				}			
 			}

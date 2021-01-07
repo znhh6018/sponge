@@ -7,6 +7,6 @@
     "\\libsponge\\util",
     "\\tests"
   ],
-  "SelectedNode": "\\libsponge\\stream_reassembler.cc",
+  "SelectedNode": "\\libsponge\\stream_reassembler.hh",
   "PreviewInSolutionExplorer": false
 }
