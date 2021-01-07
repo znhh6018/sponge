@@ -42,7 +42,6 @@ class TCPReceiver {
     std::optional<WrappingInt32> ackSeqno;
     uint64_t checkpoint;  // correspond to ackSeqno
     std::set<windowNode, windowcmp> setWindowNode = std::set<windowNode, windowcmp>();
-    size_t windowUsed;
 
   public:
     //! \brief Construct a TCP receiver
@@ -50,7 +49,7 @@ class TCPReceiver {
     //! \param capacity the maximum number of bytes that the receiver will
     //!                 store in its buffers at any give time.
     TCPReceiver(const size_t capacity)
-        : _reassembler(capacity), _capacity(capacity), synSeqno{}, ackSeqno{}, checkpoint(0), windowUsed(0) {}
+        : _reassembler(capacity), _capacity(capacity), synSeqno{}, ackSeqno{}, checkpoint(0) {}
 
     //! \name Accessors to provide feedback to the remote TCPSender
     //!@{
@@ -73,7 +72,6 @@ class TCPReceiver {
     //! accepted by the receiver) and (b) the sequence number of the
     //! beginning of the window (the ackno).
     size_t window_size() const;
-    size_t window_remains() const;
     //!@}
 
     //! \brief number of bytes stored but not yet reassembled

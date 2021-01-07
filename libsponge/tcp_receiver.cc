@@ -84,17 +84,21 @@ void TCPReceiver::segment_received(const TCPSegment &seg) {
         windowUsed += curNode.data.size();
         if (windowUsed > window_size()) {
             size_t excessLength = windowUsed - window_remains();
-            auto itor_tail = setWindowNode.rbegin();
-            while (itor_tail != setWindowNode.end() && excessLength > 0) {
+            set<windowNode, windowcmp>::reverse_iterator itor_tail = setWindowNode.rbegin();//reverse_iterator can't erase directly ,convert it to iterator
+            while (itor_tail != setWindowNode.rend() && excessLength > 0) {
                 size_t datasize = itor_tail->data.size();
+                set<windowNode, windowcmp>::iterator forward_itor = (++itor_tail).base();
                 if (datasize <= excessLength) {
-                    setWindowNode.erase(itor_tail++);
+                    setWindowNode.erase(forward_itor);
                     excessLength -= datasize;
                 } else {
                     size_t remains = datasize - excessLength;
-                    itor_tail->lastIndex = itor_tail->firstIndex + remains - 1;
-                    itor_tail->data = itor_tail->data.substr(0, remains);
-                    itor_tail->finFlag = false;
+                    windowNode tempNode = *forward_itor;
+                    tempNode.lastIndex = tempNode.firstIndex + remains - 1;
+                    tempNode.data = tempNode.data.substr(0, remains);
+                    tempNode.finFlag = false;
+                    setWindowNode.erase(forward_itor);
+                    setWindowNode.insert(tempNode);
                     excessLength = 0;
 				}			
 			}
@@ -105,6 +109,5 @@ void TCPReceiver::segment_received(const TCPSegment &seg) {
 optional<WrappingInt32> TCPReceiver::ackno() const { return ackSeqno; }
 
 size_t TCPReceiver::window_size() const {
-    return _capacity - unassembled_bytes() - _reassembler.stream_out().buffer_size();
+    return _capacity - _reassembler.stream_out().buffer_size();
 }
-size_t TCPReceiver::window_remains() const { return window_size() - windowUsed; }
