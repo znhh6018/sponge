@@ -4,8 +4,8 @@
 #include "byte_stream.hh"
 
 #include <cstdint>
-#include <string>
 #include <set>
+#include <string>
 
 struct dataNode {
     uint64_t firstIndex;
@@ -13,9 +13,9 @@ struct dataNode {
     std::string data;
 };
 struct cmp {
-    bool operator()(const dataNode &n1, const dataNode &n2)const { 
-		return n1.firstIndex < n2.firstIndex; // 
-	}
+    bool operator()(const dataNode &n1, const dataNode &n2) const {
+        return n1.firstIndex < n2.firstIndex;  //
+    }
 };
 
 //! \brief A class that assembles a series of excerpts from a byte stream (possibly out of order,
@@ -24,16 +24,16 @@ class StreamReassembler {
   private:
     // Your code here -- add private members as necessary.
 
-	// _output.buffer_size + unassembled_bytes_count <= capacity;
+    // _output.buffer_size + unassembled_bytes_count <= capacity;
 
     ByteStream _output;  //!< The reassembled in-order byte stream
     size_t _capacity;    //!< The maximum number of bytes
 
     // my data structures
-    std::set<dataNode,cmp> setNode = std::set<dataNode,cmp>();
+    std::set<dataNode, cmp> setNode = std::set<dataNode, cmp>();
     uint64_t nextByteIndex;
     size_t unassembled_bytes_count;
-    uint64_t finalByteIndex; //
+    uint64_t finalByteIndex;  //
     bool EmptysubstringWithEof_flag;
     bool iseof;
 
@@ -55,7 +55,6 @@ class StreamReassembler {
     void mergePreNode(std::set<dataNode, cmp>::iterator &preitor, dataNode &DataNode);
     void mergeNextNode(std::set<dataNode, cmp>::iterator &nextitor, dataNode &DataNode);
 
-
     //! \name Access the reassembled byte stream
     //!@{
     const ByteStream &stream_out() const { return _output; }
@@ -71,6 +70,7 @@ class StreamReassembler {
     //! \brief Is the internal state empty (other than the output stream)?
     //! \returns `true` if no substrings are waiting to be assembled
     bool empty() const;
+    uint64_t getnextByteIndex() const { return nextByteIndex; }
 };
 
 #endif  // SPONGE_LIBSPONGE_STREAM_REASSEMBLER_HH

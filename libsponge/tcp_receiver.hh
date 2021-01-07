@@ -15,22 +15,6 @@
 //! the acknowledgment number and window size to advertise back to the
 //! remote TCPSender.
 
-struct windowNode {
-    windowNode() 
-		: firstIndex(0), lastIndex(0), data(""), finFlag (false){}
-    windowNode(uint64_t first, uint64_t last ,std::string str,bool fin) 
-		: firstIndex(first), lastIndex(last), data(str), finFlag(fin) {}
-    uint64_t firstIndex;  // absolute-seqno
-    uint64_t lastIndex;   // absolute-seqno
-    std::string data;
-    bool finFlag;
-};
-struct windowcmp {
-    bool operator()(const windowNode &w1, const windowNode &w2) const {
-		return w1.firstIndex < w2.firstIndex; 
-	}
-};
-
 class TCPReceiver {
     //! Our data structure for re-assembling bytes.
     StreamReassembler _reassembler;
@@ -41,7 +25,6 @@ class TCPReceiver {
     std::optional<WrappingInt32> synSeqno;  // reset if connection ended
     std::optional<WrappingInt32> ackSeqno;
     uint64_t checkpoint;  // correspond to ackSeqno
-    std::set<windowNode, windowcmp> setWindowNode = std::set<windowNode, windowcmp>();
 
   public:
     //! \brief Construct a TCP receiver

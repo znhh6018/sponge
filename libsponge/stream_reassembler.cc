@@ -33,12 +33,10 @@ void StreamReassembler::push_substring(const string &data, const uint64_t index,
         finalByteIndex = curDataSize == 0 ? index : index + curDataSize - 1;
     }
     if (curDataSize == 0) {
-        if (eof) {
-            EmptysubstringWithEof_flag = true;
-        } else {
-            return;
-        }
-    } else {
+        if (eof) { EmptysubstringWithEof_flag = true; } 
+		else { return; }
+    } 
+	else {
          //!push string data into setNode and merge
          //!think of duplicate or overlapping
          dataNode curDataNode{index, index + curDataSize - 1, data};
@@ -46,9 +44,10 @@ void StreamReassembler::push_substring(const string &data, const uint64_t index,
              uint64_t writed = nextByteIndex - curDataNode.firstIndex;
              curDataNode.data = curDataNode.data.substr(static_cast<size_t>(writed));
              curDataNode.firstIndex = curDataNode.firstIndex + writed;
-	 } else if (nextByteIndex > curDataNode.lastIndex) {
+		 } 
+		 else if (nextByteIndex > curDataNode.lastIndex) {
              return;
-	 }
+		 }
          auto itor = setNode.lower_bound(curDataNode);		 
          // merge pre if exists
          if (itor != setNode.begin()) {
@@ -73,24 +72,25 @@ void StreamReassembler::push_substring(const string &data, const uint64_t index,
          unassembled_bytes_count += nodeLengthAfterMerge;
          if (totalLength > _capacity) {
              size_t discardLength = totalLength - _capacity;
+             unassembled_bytes_count -= discardLength;				
              auto tail_itor = setNode.rbegin();
              while (tail_itor != setNode.rend() && discardLength > 0) {
                  size_t datasize = tail_itor->data.size();
                  auto forward_itor = (++tail_itor).base();
                  if (datasize <= discardLength) {                     
                      discardLength -= datasize;
+                     setNode.erase(forward_itor);
                  } else {
                      dataNode tempNode = *forward_itor;
                      size_t remains = datasize - discardLength;
                      tempNode.lastIndex = tempNode.firstIndex + remains - 1;
                      tempNode.data = tempNode.data.substr(0, remains);
                      discardLength = 0;
+                     setNode.erase(forward_itor);
                      setNode.insert(tempNode);
 				 }
-                 setNode.erase(forward_itor);
-                 unassembled_bytes_count -= datasize;				
 			 }
-		}
+		 }
          
          //!write to stream_out
          auto begin = setNode.begin();
