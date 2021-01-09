@@ -17,6 +17,7 @@ void TCPReceiver::segment_received(const TCPSegment &seg) {
     // initialize syn
     if (header.syn && !synSeqno.has_value()) {
         synSeqno = header.seqno;
+        ackSeqno = header.seqno + 1;
     }
     if (!synSeqno.has_value()) {
         return;
@@ -31,11 +32,11 @@ void TCPReceiver::segment_received(const TCPSegment &seg) {
     }
     _reassembler.push_substring(dataToPush, absolute_seq ? absolute_seq - 1 : 0, header.fin);
     checkpoint = _reassembler.getnextByteIndex();//next stream index
-    ackSeqno = wrap(checkpoint + 1, synSeqno);
+    ackSeqno = wrap(checkpoint + 1, synSeqno.value());
 }
 
 optional<WrappingInt32> TCPReceiver::ackno() const { return ackSeqno; }
 
 size_t TCPReceiver::window_size() const {
-    return _capacity - _reassembler.stream_out().buffer_size() - unassembled_bytes();
+    return _capacity - _reassembler.stream_out().buffer_size();
 }

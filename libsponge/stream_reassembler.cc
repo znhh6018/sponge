@@ -104,6 +104,7 @@ void StreamReassembler::push_substring(const string &data, const uint64_t index,
 	}  
     // end input
     if (empty()) {
+        ++nextByteIndex;// for calculating ackseq
         stream_out().end_input();
     }
 }
