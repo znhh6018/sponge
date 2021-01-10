@@ -21,6 +21,7 @@ class Buffer {
 
     //! \brief Construct by taking ownership of a string
     Buffer(std::string &&str) noexcept : _storage(std::make_shared<std::string>(std::move(str))) {}
+    Buffer& operator=(const Buffer && str); 
 
     //! \name Expose contents as a std::string_view
     //!@{

@@ -7,6 +7,6 @@
     "\\libsponge\\util",
     "\\tests"
   ],
-  "SelectedNode": "\\libsponge\\stream_reassembler.hh",
+  "SelectedNode": "\\libsponge\\tcp_helpers\\tcp_header.hh",
   "PreviewInSolutionExplorer": false
 }

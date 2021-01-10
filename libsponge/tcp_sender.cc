@@ -24,14 +24,42 @@ TCPSender::TCPSender(const size_t capacity, const uint16_t retx_timeout, const s
 
 uint64_t TCPSender::bytes_in_flight() const { return {}; }
 
-void TCPSender::fill_window() {}
+void TCPSender::fill_window() {
+    TCPSegment seg_to_send;
+    if (_next_seqno == 0) {
+        seg_to_send.header().syn = true;
+        seg_to_send.header().seqno = _isn;
+
+    } else {
+        ByteStream &byteSource = stream_in();
+        size_t bytesCount = min(TCPConfig::MAX_PAYLOAD_SIZE, windowSize ? windowSize : 1);
+        string payLoads = byteSource.read(bytesCount);
+        seg_to_send.payload() = payLoads;  // assignment operator buffer.cc
+        seg_to_send.header().seqno = wrap(_next_seqno, _isn);
+        if (byteSource.eof()) {
+            seg_to_send.header().fin = true;
+        }
+	}
+    _next_seqno += seg_to_send.length_in_sequence_space();
+    _segments_out.push(seg_to_send);
+    _segments_out_not_ack.push(seg_to_send);
+    if ( !timeElapsed.has_value()) {
+        timeElapsed = 0;
+	}
+}
 
 //! \param ackno The remote receiver's ackno (acknowledgment number)
 //! \param window_size The remote receiver's advertised window size
-void TCPSender::ack_received(const WrappingInt32 ackno, const uint16_t window_size) { DUMMY_CODE(ackno, window_size); }
+void TCPSender::ack_received(const WrappingInt32 ackno, const uint16_t window_size) {
+    // DUMMY_CODE(ackno, window_size);
+
+
+}
 
 //! \param[in] ms_since_last_tick the number of milliseconds since the last call to this method
-void TCPSender::tick(const size_t ms_since_last_tick) { DUMMY_CODE(ms_since_last_tick); }
+void TCPSender::tick(const size_t ms_since_last_tick) {
+    // DUMMY_CODE(ms_since_last_tick);
+}
 
 unsigned int TCPSender::consecutive_retransmissions() const { return {}; }
 

@@ -7,6 +7,7 @@
 #include "wrapping_integers.hh"
 
 #include <functional>
+#include <optional>
 #include <queue>
 
 //! \brief The "sender" part of a TCP implementation.
@@ -31,6 +32,12 @@ class TCPSender {
 
     //! the (absolute) sequence number for the next byte to be sent
     uint64_t _next_seqno{0};
+
+    // my data structure
+    std::queue<TCPSegment> _segments_out_not_ack{};
+    std::optional<uint16_t> timeElapsed{};
+    uint64_t accepted_ack_absolute_seq{0};
+    size_t windowSize{0};
 
   public:
     //! Initialize a TCPSender
