@@ -35,11 +35,12 @@ class TCPSender {
 
     // my data structure
     std::queue<TCPSegment> _segments_out_not_ack{};
-    std::optional<uint16_t> timeElapsed{};
+    std::optional<size_t> timeElapsed{};
     uint64_t accepted_ack_absolute_seq{0};
     size_t windowSize{0};
     size_t cur_retransmission_timeout;
-    size_t consecutive_retransmissions_count;
+    size_t consecutive_retransmissions_count{0};
+    bool finFlag{false};
 
   public:
     //! Initialize a TCPSender

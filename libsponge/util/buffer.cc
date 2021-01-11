@@ -2,9 +2,9 @@
 
 using namespace std;
 
-Buffer &Buffer::operator=(const Buffer &&str){ 
-	_storage = std::make_shared<std::string>(std::move(str))
-}
+//Buffer &Buffer::operator=(const Buffer &&str){ 
+//	_storage = std::make_shared<std::string>(std::move(str))
+//}
 
 void Buffer::remove_prefix(const size_t n) {
     if (n > str().size()) {
