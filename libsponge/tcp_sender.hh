@@ -38,6 +38,8 @@ class TCPSender {
     std::optional<uint16_t> timeElapsed{};
     uint64_t accepted_ack_absolute_seq{0};
     size_t windowSize{0};
+    size_t cur_retransmission_timeout;
+    size_t consecutive_retransmissions_count;
 
   public:
     //! Initialize a TCPSender
