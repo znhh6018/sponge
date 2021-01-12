@@ -24,7 +24,21 @@ TCPSender::TCPSender(const size_t capacity, const uint16_t retx_timeout, const s
     , cur_retransmission_timeout(retx_timeout) {}
 
 uint64_t TCPSender::bytes_in_flight() const { 
-	return return _next_seqno - accepted_ack_absolute_seq;
+	return  _next_seqno - accepted_ack_absolute_seq;
+}
+
+void TCPSender::sendSegment(TCPSegment &seg) {
+    size_t sequence_space = seg.length_in_sequence_space();
+    if (sequence_space == 0) {
+        return;
+    }
+    seg.header().seqno = next_seqno();
+    _next_seqno += sequence_space;
+    _segments_out.push(seg);
+    _segments_out_not_ack.push(seg);
+    if (!timeElapsed.has_value()) {
+        timeElapsed = 0;
+    }
 }
 
 void TCPSender::fill_window() {
@@ -34,32 +48,29 @@ void TCPSender::fill_window() {
     TCPSegment seg_to_send;
     if (_next_seqno == 0) {
         seg_to_send.header().syn = true;
-        seg_to_send.header().seqno = _isn;
-    } else if (windowSize > 0 && !stream_in().eof()) {
+        sendSegment(seg_to_send);
+        return;
+    } 
+    while (windowSize > 0 && !stream_in().eof()) {
         ByteStream &byteSource = stream_in();
-        size_t bytesCount = min(TCPConfig::MAX_PAYLOAD_SIZE, windowSize );        
+        size_t bytesCount = min(TCPConfig::MAX_PAYLOAD_SIZE, windowSize);
         string payLoads = byteSource.read(bytesCount);
-        windowSize -= payLoads.size();//space remains
-        seg_to_send.payload() = Buffer(std::move(payLoads));  // assignment operator buffer.cc
-        seg_to_send.header().seqno = next_seqno();
-        if (byteSource.eof() && payLoads.size() < bytesCount) {
-            seg_to_send.header().fin = true ;
-            finFlag = true;
+        if (payLoads.size() == 0) {
+            break;
 		}
-    } else if (windowSize > 0) {
+        windowSize -= payLoads.size();                        // space remains
+        seg_to_send.payload() = Buffer(std::move(payLoads));  // assignment operator buffer.cc
+        if (byteSource.eof() && payLoads.size() < bytesCount) {
+            seg_to_send.header().fin = true;
+            finFlag = true;
+        }
+        sendSegment(seg_to_send);
+    }
+    if (windowSize > 0 && stream_in().eof() && !finFlag) {//!finflag  means ,finflag has not been writed 
         seg_to_send.header().fin = true;
         finFlag = true;
-	}
-    size_t sequence_space = seg_to_send.length_in_sequence_space();
-    if (sequence_space == 0) {
-        return;
-	}
-    _next_seqno += sequence_space;
-    _segments_out.push(seg_to_send);
-    _segments_out_not_ack.push(seg_to_send);
-    if ( !timeElapsed.has_value()) {
-        timeElapsed = 0;
-	}
+        sendSegment(seg_to_send);
+    }	
 }
 
 //! \param ackno The remote receiver's ackno (acknowledgment number)
