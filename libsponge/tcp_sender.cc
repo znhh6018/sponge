@@ -64,7 +64,7 @@ void TCPSender::fill_window() {
             break;
 		}
         windowSize_without_flyingbytes -= payLoads_size;      // space remains
-        seg_to_send.payload() = Buffer(std::move(payLoads));  // assignment operator buffer.cc
+        seg_to_send.payload() = Buffer(std::move(payLoads));  // 
         if (byteSource.eof() && windowSize_without_flyingbytes) {
             seg_to_send.header().fin = true;
             finFlag = true;

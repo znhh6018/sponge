@@ -3,10 +3,8 @@
     "",
     "\\apps",
     "\\libsponge",
-    "\\libsponge\\tcp_helpers",
-    "\\libsponge\\util",
-    "\\tests"
+    "\\libsponge\\tcp_helpers"
   ],
-  "SelectedNode": "\\tests\\send_extra.cc",
+  "SelectedNode": "\\libsponge\\tcp_helpers\\tcp_segment.cc",
   "PreviewInSolutionExplorer": false
 }
