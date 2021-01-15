@@ -22,7 +22,9 @@ class TCPConnection {
     bool _linger_after_streams_finish{true};
 
     // my datastructure
-    bool activeFlag{};
+    bool activeFlag{false};
+    std::optional<size_t> timer_for_linger{};
+    bool two_way_finish{false};
 
   public:
     //! \name "Input" interface for the writer

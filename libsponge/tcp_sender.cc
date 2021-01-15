@@ -141,3 +141,16 @@ void TCPSender::send_empty_segment() {
     empty_segment.header().seqno = next_seqno();
     _segments_out.push(empty_segment);
 }
+
+void TCPSender::send_ACK_segment(WrappingInt32 ackno, uint16_t win) {
+    TCPSegment ack_win_segment;
+    ack_win_segment.header().seqno = next_seqno();
+    ack_win_segment.header().ack = true;
+    ack_win_segment.header().ackno = ackno;
+    ack_win_segment.header().win = win;
+    segments_out().push(ack_win_segment);
+    _segments_out_not_ack.push(seg);
+    if (!timeElapsed.has_value()) {
+        timeElapsed = 0;
+    }
+}

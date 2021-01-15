@@ -5,6 +5,6 @@
     "\\libsponge",
     "\\libsponge\\tcp_helpers"
   ],
-  "SelectedNode": "\\libsponge\\tcp_helpers\\tcp_segment.cc",
+  "SelectedNode": "\\libsponge\\tcp_helpers\\tcp_config.hh",
   "PreviewInSolutionExplorer": false
 }

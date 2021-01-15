@@ -64,6 +64,9 @@ class TCPSender {
     //! \brief Generate an empty-payload segment (useful for creating empty ACK segments)
     void send_empty_segment();
 
+	void send_ACK_segment(WrappingInt32 ackno,uint16_t win);
+
+
     //! \brief create and send segments to fill as much of the window as possible
     void fill_window();
 
