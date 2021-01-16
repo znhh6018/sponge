@@ -24,6 +24,15 @@ size_t TCPConnection::time_since_last_segment_received() const {
 	}
 	return 0; 
 }
+void TCPConnection::send_ACK_segment(WrappingInt32 ackno, uint16_t win) {
+    TCPSegment ack_win_segment;
+    ack_win_segment.header().seqno = _sender.next_seqno();
+    ack_win_segment.header().ack = true;
+    ack_win_segment.header().ackno = ackno;
+    ack_win_segment.header().win = win;
+    _segments_out.push(ack_win_segment);
+}
+
 
 void TCPConnection::segment_received(const TCPSegment &seg) {
     // DUMMY_CODE(seg);
@@ -70,7 +79,7 @@ void TCPConnection::segment_received(const TCPSegment &seg) {
         } else {
             win = static_cast<uint16_t>(_receiver.window_size());
         }
-        _sender.send_ACK_segment(_receiver.ackno().value(), win);
+        send_ACK_segment(_receiver.ackno().value(), win);
     }
 }
 
@@ -78,15 +87,14 @@ bool TCPConnection::active() const { return activeFlag; }
 
 size_t TCPConnection::write(const string &data) {
     // DUMMY_CODE(data);
-    ByteStream &_stream = _sender.stream_in();
-    size_t bytes_write = _stream.write(data);
+    size_t bytes_write = _sender.stream_in().write(data);
     _sender.fill_window();
     return bytes_write;
 }
 
 //! \param[in] ms_since_last_tick number of milliseconds since the last call to this method
 void TCPConnection::tick(const size_t ms_since_last_tick) {
-    //DUMMY_CODE(ms_since_last_tick); \
+    //DUMMY_CODE(ms_since_last_tick); 
 	//tell sender
     _sender.tick(ms_since_last_tick);
     // send RST
@@ -94,7 +102,7 @@ void TCPConnection::tick(const size_t ms_since_last_tick) {
         TCPSegment RST_segment;
         RST_segment.header().seqno = _sender.next_seqno();
         RST_segment.header().rst = true;
-        _sender.segments_out().push(RST_segment);
+        _segments_out.push(RST_segment);
         _sender.stream_in().set_error();
         _receiver.stream_out().set_error();
         activeFlag = false;
@@ -113,6 +121,10 @@ void TCPConnection::end_input_stream() { _sender.stream_in().end_input(); }
 void TCPConnection::connect() {
     if (_sender.next_seqno_absolute() == 0) {
         _sender.fill_window();
+        TCPSegment syn_segment;
+        syn_segment.header().seqno = _sender.next_seqno();
+        syn_segment.header().syn = true;
+        _segments_out.push(syn_segment);
     }
 }
 
@@ -125,7 +137,7 @@ TCPConnection::~TCPConnection() {
             TCPSegment RST_segment;
             RST_segment.header().seqno = _sender.next_seqno();
             RST_segment.header().rst = true;
-            _sender.segments_out().push(RST_segment);
+            _segments_out.push(RST_segment);
             // _sender.stream_in().set_error();
             // _receiver.stream_out().set_error();
             // activeFlag = false;
