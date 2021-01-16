@@ -3,8 +3,9 @@
     "",
     "\\apps",
     "\\libsponge",
-    "\\libsponge\\tcp_helpers"
+    "\\libsponge\\tcp_helpers",
+    "\\tests"
   ],
-  "SelectedNode": "\\libsponge\\tcp_helpers\\tcp_config.hh",
+  "SelectedNode": "\\tests\\send_close.cc",
   "PreviewInSolutionExplorer": false
 }

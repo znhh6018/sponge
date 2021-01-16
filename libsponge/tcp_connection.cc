@@ -70,7 +70,7 @@ void TCPConnection::segment_received(const TCPSegment &seg) {
         } else {
             win = static_cast<uint16_t>(_receiver.window_size());
         }
-        _sender.send_ACK_segment(_receiver.ackno(), win);
+        _sender.send_ACK_segment(_receiver.ackno().value(), win);
     }
 }
 
@@ -90,9 +90,9 @@ void TCPConnection::tick(const size_t ms_since_last_tick) {
 	//tell sender
     _sender.tick(ms_since_last_tick);
     // send RST
-    if (_sender.consecutive_retransmissions() > _cfg::MAX_RETX_ATTEMPTS) {
+    if (_sender.consecutive_retransmissions() > TCPConfig::MAX_RETX_ATTEMPTS) {
         TCPSegment RST_segment;
-        RST_segment.header().seqno() = _sender.next_seqno();
+        RST_segment.header().seqno = _sender.next_seqno();
         RST_segment.header().rst = true;
         _sender.segments_out().push(RST_segment);
         _sender.stream_in().set_error();
@@ -101,7 +101,7 @@ void TCPConnection::tick(const size_t ms_since_last_tick) {
     }
     // end connection cleanly if linger
     if (two_way_finish && _linger_after_streams_finish) {
-        timer_for_linger = timer_for_linger + ms_since_last_tick;
+        timer_for_linger = timer_for_linger.value() + ms_since_last_tick;
         if (timer_for_linger >= 10 * _cfg.rt_timeout) {
             activeFlag = false;
         }
@@ -123,7 +123,7 @@ TCPConnection::~TCPConnection() {
 
             // Your code here: need to send a RST segment to the peer
             TCPSegment RST_segment;
-            RST_segment.header().seqno() = _sender.next_seqno();
+            RST_segment.header().seqno = _sender.next_seqno();
             RST_segment.header().rst = true;
             _sender.segments_out().push(RST_segment);
             // _sender.stream_in().set_error();

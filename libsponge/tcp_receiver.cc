@@ -27,7 +27,7 @@ void TCPReceiver::segment_received(const TCPSegment &seg) {
     string dataToPush = payLoad.copy();
     uint64_t absolute_seq = unwrap(curSeqno, synSeqno.value(), checkpoint);
     size_t dataLength = payLoad.str().size() + (header.syn ? 1 : 0) + (header.fin ? 1 : 0);
-    if (header.syn && dataLength == 1) {
+    if (absolute_seq == 0 && dataLength == 1) {
         return;
     }
     _reassembler.push_substring(dataToPush, absolute_seq ? absolute_seq - 1 : 0, header.fin);
