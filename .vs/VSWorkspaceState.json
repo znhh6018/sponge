@@ -4,8 +4,9 @@
     "\\apps",
     "\\libsponge",
     "\\libsponge\\tcp_helpers",
+    "\\libsponge\\util",
     "\\tests"
   ],
-  "SelectedNode": "\\tests\\send_close.cc",
+  "SelectedNode": "\\tests\\tcp_fsm_test_harness.hh",
   "PreviewInSolutionExplorer": false
 }

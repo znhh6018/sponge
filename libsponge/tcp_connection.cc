@@ -89,6 +89,7 @@ size_t TCPConnection::write(const string &data) {
     // DUMMY_CODE(data);
     size_t bytes_write = _sender.stream_in().write(data);
     _sender.fill_window();
+    push_from_Sender_to_connection();
     return bytes_write;
 }
 
@@ -116,15 +117,16 @@ void TCPConnection::tick(const size_t ms_since_last_tick) {
     }
 }
 
-void TCPConnection::end_input_stream() { _sender.stream_in().end_input(); }
+void TCPConnection::end_input_stream() { 
+	_sender.stream_in().end_input(); 
+	_sender.fill_window();
+    push_from_Sender_to_connection();
+}
 
 void TCPConnection::connect() {
     if (_sender.next_seqno_absolute() == 0) {
         _sender.fill_window();
-        TCPSegment syn_segment;
-        syn_segment.header().seqno = _sender.next_seqno();
-        syn_segment.header().syn = true;
-        _segments_out.push(syn_segment);
+        push_from_Sender_to_connection();
     }
 }
 
@@ -145,4 +147,13 @@ TCPConnection::~TCPConnection() {
     } catch (const exception &e) {
         std::cerr << "Exception destructing TCP FSM: " << e.what() << std::endl;
     }
+}
+
+
+void TCPConnection::push_from_Sender_to_connection() { 
+	queue<TCPSegment> &sender_queue = _sender.segments_out();
+    while (!sender_queue.empty()) {
+        _segments_out.push(sender_queue.front());
+        sender_queue.pop();
+	}
 }

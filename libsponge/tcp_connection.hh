@@ -88,7 +88,7 @@ class TCPConnection {
     //! Construct a new connection from a configuration
     explicit TCPConnection(const TCPConfig &cfg) : _cfg{cfg} {}
 
-    void TCPConnection::send_ACK_segment(WrappingInt32 ackno, uint16_t win) {}
+    void send_ACK_segment(WrappingInt32 ackno, uint16_t win);
 
     //! \name construction and destruction
     //! moving is allowed; copying is disallowed; default construction not possible
@@ -101,6 +101,8 @@ class TCPConnection {
     TCPConnection(const TCPConnection &other) = delete;
     TCPConnection &operator=(const TCPConnection &other) = delete;
     //!@}
+
+	void push_from_Sender_to_connection();
 };
 
 #endif  // SPONGE_LIBSPONGE_TCP_FACTORED_HH
