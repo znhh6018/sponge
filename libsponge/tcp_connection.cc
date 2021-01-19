@@ -34,16 +34,24 @@ void TCPConnection::send_ACK_segment(WrappingInt32 ackno, uint16_t win) {
 }
 void TCPConnection::check_linger_after_send_and_recv(){
 	bool receive_finish = _receiver.stream_out().eof();
-        bool send_finish_and_acked = _sender.stream_in().eof() &&
-                                     _sender.next_seqno_absolute() == _sender.stream_in().bytes_written() + 2 &&
-                                     _sender.bytes_in_flight() == 0;
-        two_way_finish = receive_finish && send_finish_and_acked;
-        if (receive_finish && !send_finish_and_acked) {
-            _linger_after_streams_finish = false;
-        }
+    bool not_send_fin = _sender.next_seqno_absolute() < _sender.stream_in().bytes_written() + 2;
+    bool send_finish_and_acked = _sender.stream_in().eof() 
+		                         && _sender.next_seqno_absolute() == _sender.stream_in().bytes_written() + 2 
+		                         && _sender.bytes_in_flight() == 0;
+    two_way_finish = receive_finish && send_finish_and_acked;
+    if (receive_finish && not_send_fin) {
+        _linger_after_streams_finish = false;
+    }
 	if (!_linger_after_streams_finish && send_finish_and_acked) {
             activeFlag = false;
-        }
+    }
+    if (_linger_after_streams_finish && two_way_finish) {
+        if (!timer_for_linger.has_value()) {
+            timer_for_linger = 0;
+        } else {
+        
+		}
+    }
 }
 
 void TCPConnection::segment_received(const TCPSegment &seg) {
@@ -60,7 +68,6 @@ void TCPConnection::segment_received(const TCPSegment &seg) {
     if(seg.header().syn){
 	    activeFlag = true;
     }
-    check_linger_after_send_and_recv();
     //!ACK
     if (seg.header().ack) {
         // tell sender win and ack
@@ -69,12 +76,8 @@ void TCPConnection::segment_received(const TCPSegment &seg) {
         if (_sender.next_seqno_absolute() > _sender.bytes_in_flight()) {
             activeFlag = true;
         }  
-        if (_linger_after_streams_finish && two_way_finish) {
-            if (!timer_for_linger.has_value()) {
-                timer_for_linger = 0;
-            }
-        }
     }
+    check_linger_after_send_and_recv();
     //!send segment only with ack , win,this doesn't occupy sequence number
     if (seg.length_in_sequence_space()) {
         uint16_t win{0};
@@ -94,15 +97,16 @@ size_t TCPConnection::write(const string &data) {
     size_t bytes_write = _sender.stream_in().write(data);
     _sender.fill_window();
     push_from_Sender_to_connection();
-    check_linger_after_send_and_recv();
+    //check_linger_after_send_and_recv();
     return bytes_write;
 }
 
 //! \param[in] ms_since_last_tick number of milliseconds since the last call to this method
 void TCPConnection::tick(const size_t ms_since_last_tick) {
     //DUMMY_CODE(ms_since_last_tick); 
-	//tell sender
+	//tell sender,if timeout retransmit
     _sender.tick(ms_since_last_tick);
+    push_from_Sender_to_connection();
     // send RST
     if (_sender.consecutive_retransmissions() > TCPConfig::MAX_RETX_ATTEMPTS) {
         TCPSegment RST_segment;
@@ -154,19 +158,19 @@ TCPConnection::~TCPConnection() {
 void TCPConnection::push_from_Sender_to_connection() { 
     queue<TCPSegment> &sender_queue = _sender.segments_out();
     while (!sender_queue.empty()) {
-	TCPSegment& sender_segment = sender_queue.front() ;
-	if(_receiver.ackno().has_value()){
-		uint16_t win{0};
-        	if (_receiver.window_size() > numeric_limits<uint16_t>::max()) {
-            		win = numeric_limits<uint16_t>::max();
-        	} else {
-            		win = static_cast<uint16_t>(_receiver.window_size());
-        	}
-		sender_segment.header().ack = true;
-    		sender_segment.header().ackno = ackno;
-   		sender_segment.header().win = win;
-	}
-        _segments_out.push(sender_segment);
-        sender_queue.pop();
+		TCPSegment& sender_segment = sender_queue.front() ;
+		if(_receiver.ackno().has_value()){
+			uint16_t win{0};
+		    if (_receiver.window_size() > numeric_limits<uint16_t>::max()) {
+		    		win = numeric_limits<uint16_t>::max();
+		    } else {
+		    		win = static_cast<uint16_t>(_receiver.window_size());
+		    }
+			sender_segment.header().ack = true;
+		    sender_segment.header().ackno = _receiver.ackno().value();
+   			sender_segment.header().win = win;
+		}
+		_segments_out.push(sender_segment);
+		sender_queue.pop();
     }
 }

@@ -7,6 +7,6 @@
     "\\libsponge\\util",
     "\\tests"
   ],
-  "SelectedNode": "\\tests\\tcp_fsm_test_harness.hh",
+  "SelectedNode": "\\libsponge\\wrapping_integers.cc",
   "PreviewInSolutionExplorer": false
 }

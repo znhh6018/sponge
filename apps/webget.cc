@@ -19,7 +19,7 @@ void get_URL(const string &host, const string &path) {
     TCPSocket tsk;
     Address add(host, "http");
     tsk.connect(add);
-    string req = "GET " + path + " HTTP/1.1\r\n" + "Host: " + host + "\r\n" + "Connection: close" + "\r\n";
+    string req = "GET " + path + " HTTP/1.1\r\n" + "Host: " + host + "\r\n" + "Connection: close" + "\r\n\r\n";
     tsk.write(req);
     tsk.shutdown(SHUT_WR);
     string resp;

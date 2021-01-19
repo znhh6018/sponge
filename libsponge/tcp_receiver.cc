@@ -26,6 +26,13 @@ void TCPReceiver::segment_received(const TCPSegment &seg) {
     WrappingInt32 curSeqno = header.seqno;
     string dataToPush = payLoad.copy();
     uint64_t absolute_seq = unwrap(curSeqno, synSeqno.value(), checkpoint);
+
+	//check absolute_seq ,in the interval [checkpoint+1,checkpoint + window_size()]
+    if (absolute_seq > checkpoint + static_cast<uint64_t>(window_size())) {
+        return;
+	}
+
+
     size_t dataLength = payLoad.str().size() + (header.syn ? 1 : 0) + (header.fin ? 1 : 0);
     if (absolute_seq == 0 && dataLength == 1) {
         return;

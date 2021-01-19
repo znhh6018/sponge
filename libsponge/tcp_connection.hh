@@ -103,6 +103,7 @@ class TCPConnection {
     //!@}
 
 	void push_from_Sender_to_connection();
+    void check_linger_after_send_and_recv();
 };
 
 #endif  // SPONGE_LIBSPONGE_TCP_FACTORED_HH
