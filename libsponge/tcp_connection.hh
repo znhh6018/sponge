@@ -24,7 +24,6 @@ class TCPConnection {
     // my datastructure
     bool activeFlag{false};
     std::optional<size_t> timer_for_linger{};
-    bool two_way_finish{false};
 
   public:
     //! \name "Input" interface for the writer
@@ -104,6 +103,10 @@ class TCPConnection {
 
 	void push_from_Sender_to_connection();
     void check_linger_after_send_and_recv();
-};
+    void send_RST_segment();
+	bool receive_finish();
+    bool not_send_fin();
+    bool two_way_finish();
+    bool send_finish_and_acked();
 
 #endif  // SPONGE_LIBSPONGE_TCP_FACTORED_HH

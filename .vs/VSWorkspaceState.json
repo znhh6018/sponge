@@ -7,6 +7,6 @@
     "\\libsponge\\util",
     "\\tests"
   ],
-  "SelectedNode": "\\libsponge\\wrapping_integers.cc",
+  "SelectedNode": "\\tests\\fsm_retx_relaxed.cc",
   "PreviewInSolutionExplorer": false
 }
