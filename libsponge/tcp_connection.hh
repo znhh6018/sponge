@@ -22,7 +22,7 @@ class TCPConnection {
     bool _linger_after_streams_finish{true};
 
     // my datastructure
-    bool activeFlag{false};
+    bool activeFlag{true};
     std::optional<size_t> timer_for_linger{};
 
   public:
@@ -108,5 +108,5 @@ class TCPConnection {
     bool not_send_fin();
     bool two_way_finish();
     bool send_finish_and_acked();
-
+}
 #endif  // SPONGE_LIBSPONGE_TCP_FACTORED_HH
