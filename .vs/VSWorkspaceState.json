@@ -4,9 +4,8 @@
     "\\apps",
     "\\libsponge",
     "\\libsponge\\tcp_helpers",
-    "\\libsponge\\util",
-    "\\tests"
+    "\\libsponge\\util"
   ],
-  "SelectedNode": "\\tests\\fsm_retx_relaxed.cc",
+  "SelectedNode": "\\libsponge\\util\\parser.cc",
   "PreviewInSolutionExplorer": false
 }
