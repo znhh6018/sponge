@@ -41,11 +41,11 @@ class NetworkInterface {
     //! outbound queue of Ethernet frames that the NetworkInterface wants sent
     std::queue<EthernetFrame> _frames_out{};
 
-	 // my data structure
-    std::unordered_map<uint32_t, EthernetAddress> ip_to_ethernet;
-    std::unordered_map<uint32_t, uint32_t> ip_to_time;
-    std::unordered_map<uint32_t, std::vector<InternetDatagram>> temp_store_data;//ethernet once got,send these datas with ethernet info
-    std::optional<uint32_t> five_seconds_wait;
+    // my data structure
+    std::unordered_map<uint32_t, EthernetAddress> ip_to_ethernet{};
+    std::unordered_map<uint32_t, uint32_t> ip_to_time{};
+    std::unordered_map<uint32_t, std::vector<InternetDatagram>> temp_store_data{};  // ethernet once got,send these datas with ethernet info
+    std::optional<uint32_t> five_seconds_wait{};
 
   public:
     //! \brief Construct a network interface with given Ethernet (network-access-layer) and IP (internet-layer) addresses
@@ -70,11 +70,9 @@ class NetworkInterface {
     //! \brief Called periodically when time elapses
     void tick(const size_t ms_since_last_tick);
 
-	EthernetFrame NetworkInterface::make_ethernet_frame_IPV4(InternetDatagram &dgram,
-                                                             EthernetAddress &target_ethaddress);
-    EthernetFrame NetworkInterface::make_ethernet_frame_ARP(uint32_t &target_ip,
-                                                            EthernetAddress &target_eth,
-                                                            uint16_t opcode);
+    EthernetFrame make_ethernet_frame_IPV4(InternetDatagram &dgram, EthernetAddress &target_ethaddress);
+    EthernetFrame make_ethernet_frame_ARP(uint32_t &target_ip, const EthernetAddress &target_eth, uint16_t opcode);
+    bool is_same_ethernet(const EthernetAddress &eth1, const EthernetAddress &eth2);
 };
 
 #endif  // SPONGE_LIBSPONGE_NETWORK_INTERFACE_HH

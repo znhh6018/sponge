@@ -108,5 +108,5 @@ class TCPConnection {
     bool not_send_fin();
     bool two_way_finish();
     bool send_finish_and_acked();
-}
+};
 #endif  // SPONGE_LIBSPONGE_TCP_FACTORED_HH
