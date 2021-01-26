@@ -69,6 +69,12 @@ class NetworkInterface {
 
     //! \brief Called periodically when time elapses
     void tick(const size_t ms_since_last_tick);
+
+	EthernetFrame NetworkInterface::make_ethernet_frame_IPV4(InternetDatagram &dgram,
+                                                             EthernetAddress &target_ethaddress);
+    EthernetFrame NetworkInterface::make_ethernet_frame_ARP(uint32_t &target_ip,
+                                                            EthernetAddress &target_eth,
+                                                            uint16_t opcode);
 };
 
 #endif  // SPONGE_LIBSPONGE_NETWORK_INTERFACE_HH
