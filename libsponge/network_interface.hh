@@ -70,8 +70,8 @@ class NetworkInterface {
     //! \brief Called periodically when time elapses
     void tick(const size_t ms_since_last_tick);
 
-    EthernetFrame make_ethernet_frame_IPV4(InternetDatagram &dgram, EthernetAddress &target_ethaddress);
-    EthernetFrame make_ethernet_frame_ARP(uint32_t &target_ip, const EthernetAddress &target_eth, uint16_t opcode);
+    EthernetFrame make_ethernet_frame_IPV4(const InternetDatagram &dgram, const EthernetAddress &target_ethaddress);
+    EthernetFrame make_ethernet_frame_ARP(const uint32_t &target_ip, const EthernetAddress &target_eth, uint16_t opcode);
     bool is_same_ethernet(const EthernetAddress &eth1, const EthernetAddress &eth2);
 };
 

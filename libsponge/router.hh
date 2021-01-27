@@ -53,7 +53,7 @@ class Router {
 
     // my data structure
     std::unordered_map<size_t, size_t> value_to_ip{};
-    std::unordered_map<size_t, pair<optional<Address>, size_t>> ip_to_pair{};
+    std::unordered_map<size_t, std::pair<std::optional<Address>, size_t>> ip_to_pair{};
 
   public:
     //! Add an interface to the router
@@ -75,6 +75,7 @@ class Router {
 
     //! Route packets between the interfaces
     void route();
+    bool check_ttl(InternetDatagram &dgram);
 };
 
 #endif  // SPONGE_LIBSPONGE_ROUTER_HH

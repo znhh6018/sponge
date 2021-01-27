@@ -27,7 +27,7 @@ NetworkInterface::NetworkInterface(const EthernetAddress &ethernet_address, cons
 }
 
 EthernetFrame NetworkInterface::make_ethernet_frame_IPV4(const InternetDatagram &dgram,
-                                                         EthernetAddress &target_ethaddress) {
+                                                         const EthernetAddress &target_ethaddress) {
     EthernetFrame frame_to_send;
     frame_to_send.header().type = EthernetHeader::TYPE_IPv4;
     frame_to_send.payload().append(dgram.serialize());

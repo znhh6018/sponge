@@ -29,7 +29,7 @@ void Router::add_route(const uint32_t route_prefix,
     cerr << "DEBUG: adding route " << Address::from_ipv4_numeric(route_prefix).ip() << "/" << int(prefix_length)
          << " => " << (next_hop.has_value() ? next_hop->ip() : "(direct)") << " on interface " << interface_num << "\n";
 
-    DUMMY_CODE(route_prefix, prefix_length, next_hop, interface_num);
+    //DUMMY_CODE(route_prefix, prefix_length, next_hop, interface_num);
     // Your code here.
     for (int i = 0; i <= 32 - prefix_length; i++) {
         value_to_ip[route_prefix>>i] = route_prefix;
@@ -39,27 +39,25 @@ void Router::add_route(const uint32_t route_prefix,
 
 //! \param[in] dgram The datagram to be routed
 void Router::route_one_datagram(InternetDatagram &dgram) {
-    DUMMY_CODE(dgram);
+    //DUMMY_CODE(dgram);
     // Your code here.
     size_t dst_ip = dgram.header().dst; 
-	for (int i = 0; i < 32; i++) {
-        size_t vlaue = (dst_ip >> i);
+	for (int i = 0; i <= 32; i++) {
+        size_t value = (dst_ip >> i);
         if (value_to_ip.find(value) != value_to_ip.end()) {
-            size_t longest_ip = value_to_ip[value];
-            const optional<Address> next_address = ip_to_pair[longest_ip].first;
-            const size_t interface_num = ip_to_pair[longest_ip].second;
-            if (next_address.has_value()) {
-                interface(interface_num).send_datagram(dgram, next_address);
-			} else {
-                interface(interface_num).send_datagram(dgram, Address::from_ipv4_numeric(dst_ip));
-			}
+            if (check_ttl(dgram) == true) {
+                size_t longest_ip = value_to_ip[value];
+                const optional<Address> next_address = ip_to_pair[longest_ip].first;
+                const size_t interface_num = ip_to_pair[longest_ip].second;
+                if (next_address.has_value()) {
+                    interface(interface_num).send_datagram(dgram, next_address.value());
+                } else {
+                    interface(interface_num).send_datagram(dgram, Address::from_ipv4_numeric(dst_ip));
+                }
+			}            
             return;		
 		}
 	}
-    if (dgram.header().ttl == 0) {
-        return;
-	}
-    dgram.header().ttl--;
 }
 
 void Router::route() {
@@ -71,4 +69,11 @@ void Router::route() {
             queue.pop();
         }
     }
+}
+bool Router::check_ttl(InternetDatagram &dgram) {
+    if (dgram.header().ttl <= 1) {
+        return false;
+    }
+    dgram.header().ttl--;
+    return true;
 }
