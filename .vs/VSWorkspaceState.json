@@ -6,6 +6,6 @@
     "\\libsponge\\tcp_helpers",
     "\\libsponge\\util"
   ],
-  "SelectedNode": "\\libsponge\\util\\parser.cc",
+  "SelectedNode": "\\libsponge\\tcp_connection.cc",
   "PreviewInSolutionExplorer": false
 }
