@@ -14,7 +14,7 @@ The receive part.A reassembler for reassemble the strings you received. They may
 The receive part.I put the most receive logic in lab1,so this part didn't take too much time and codes.
 	
 ## lab 3:
-The send part.On one hand ,We need to keep writing to the window unless these is no more space or nothing to write.On the other hand,we need to determine ack number and windowSize of the peer by acknowledge segments we received.We also need to retransmit the seghment,increase the retransmition_count and double the retransmition_timeout,but if the windowSize of the peer is zero,we don't need to do the latter two.You can think why?I think if retransmittions occured while the peer's windowSize is zero,that means there is nothing to do with the network congestion,so we don't need to do that.
+The send part.On one hand ,We need to keep writing to the window unless these is no more space or nothing to write.On the other hand,we need to determine ack number and windowSize of the peer by acknowledge segments we received.We also need to retransmit the segment,increase the retransmition_count and double the retransmition_timeout,but if the windowSize of the peer is zero,we don't need to do the latter two.You can think why?I think if retransmittions occured while the peer's windowSize is zero,that means there is nothing to do with the network congestion,so we don't need to do that.
 	
 ## lab 4:
 Put receive part and send part together.three-way handshake and four-way wavehand and all the state transmittion are involved.Under which circumstances should we linger or not,I think linger is the most difficult part in this lab,you really need to figure out why.
