@@ -80,13 +80,7 @@ void TCPConnection::segment_received(const TCPSegment &seg) {
     check_linger_after_send_and_recv();
     //!send segment only with ack , win,this doesn't occupy sequence number
     if (seg.length_in_sequence_space()) {
-        uint16_t win{0};
-        if (_receiver.window_size() > numeric_limits<uint16_t>::max()) {
-            win = numeric_limits<uint16_t>::max();
-        } else {
-            win = static_cast<uint16_t>(_receiver.window_size());
-        }
-        send_ACK_segment(_receiver.ackno().value(), win);
+        send_ACK_segment(_receiver.ackno().value(), get_windowSize());
     }
 }
 
@@ -108,14 +102,14 @@ void TCPConnection::tick(const size_t ms_since_last_tick) {
     // send RST
     if (_sender.consecutive_retransmissions() > TCPConfig::MAX_RETX_ATTEMPTS) {
         send_RST_segment();
-        _sender.stream_in().set_error();
-        _receiver.stream_out().set_error();
-        activeFlag = false;
         return;
     }
     push_from_Sender_to_connection();
     // end connection cleanly if linger
     if (two_way_finish() && _linger_after_streams_finish) {
+		if (!timer_for_linger.has_value()) {
+            timer_for_linger = 0;
+		}
         timer_for_linger = timer_for_linger.value() + ms_since_last_tick;
         if (timer_for_linger >= 10 * _cfg.rt_timeout) {
             activeFlag = false;
@@ -152,24 +146,37 @@ void TCPConnection::push_from_Sender_to_connection() {
     queue<TCPSegment> &sender_queue = _sender.segments_out();
     while (!sender_queue.empty()) {
 		TCPSegment& sender_segment = sender_queue.front() ;
+        sender_queue.pop();
 		if(_receiver.ackno().has_value()){
-			uint16_t win{0};
-		    if (_receiver.window_size() > numeric_limits<uint16_t>::max()) {
-		    		win = numeric_limits<uint16_t>::max();
-		    } else {
-		    		win = static_cast<uint16_t>(_receiver.window_size());
-		    }
 			sender_segment.header().ack = true;
 		    sender_segment.header().ackno = _receiver.ackno().value();
-   			sender_segment.header().win = win;
+            sender_segment.header().win = get_windowSize();
+		}
+        if (rst_flag) {
+            rst_flag = false;
+            sender_segment.header().rst = true;
+            _segments_out.push(sender_segment);
+            return;
 		}
 		_segments_out.push(sender_segment);
-		sender_queue.pop();
     }
 }
 void TCPConnection::send_RST_segment() {
-	TCPSegment RST_segment;
-    RST_segment.header().seqno = _sender.next_seqno();
-    RST_segment.header().rst = true;
-    _segments_out.push(RST_segment);
+	_sender.stream_in().set_error();
+    _receiver.stream_out().set_error();
+    activeFlag = false;
+    rst_flag = true;
+    if (_sender.segments_out().empty()) {
+        _sender.send_empty_segment();
+	}
+    push_from_Sender_to_connection();
+}
+uint16_t TCPConnection::get_windowSize() {
+    uint16_t win{0};
+    if (_receiver.window_size() > numeric_limits<uint16_t>::max()) {
+        win = numeric_limits<uint16_t>::max();
+    } else {
+        win = static_cast<uint16_t>(_receiver.window_size());
+    }
+    return win;
 }

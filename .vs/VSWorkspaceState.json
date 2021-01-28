@@ -3,10 +3,8 @@
     "",
     "\\apps",
     "\\libsponge",
-    "\\libsponge\\tcp_helpers",
-    "\\libsponge\\util",
-    "\\tests"
+    "\\libsponge\\util"
   ],
-  "SelectedNode": "\\apps\\network_simulator.cc",
+  "SelectedNode": "\\libsponge\\tcp_connection.cc",
   "PreviewInSolutionExplorer": false
 }
