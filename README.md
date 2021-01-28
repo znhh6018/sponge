@@ -2,13 +2,13 @@
 
 It takes a month and is worth it.I learned the bottom of computer network,how the TCP works.
 
-For all labs,something is descripted in the handout and you need to figure out more details by test case,there is bug with GDB,use LLDB instead,most of the commands are the same.
+For all labs,something is not descripted in the handout and you need to figure out more details by test case,there is bug with GDB,use LLDB instead,most of the commands are the same.
 
 There is still something to do with the optimization,improve the write speed and read speed.Maybe later....
 
 ## lab 1:
 
-The receive part.A reassembler for reassemble the strings you received. They may be out of order ,longer than the capacity or duplicate, or other circumstances you may <br> not think of, e.g. an empty substring with eof.
+The receive part.A reassembler for reassemble the strings you received. They may be out of order ,longer than the capacity or duplicate, or other circumstances you may not think of, e.g. an empty substring with eof.
 	
 ## lab 2:
 The receive part.I put the most receive logic in lab1,so this part didn't take too much time and codes.
