@@ -6,7 +6,7 @@ For all labs,something is descripted in the handout and you need to figure out m
 
 There is still something to do with the optimization,improve the write speed and read speed.Maybe later....
 
-lab 1:
+##lab 1:
 	The receive part.A reassembler for reassemble the strings you received. They may be out of order ,longer than the capacity or duplicate, or other circumstances you may not think of, e.g. an empty substring with eof.
 	
 lab 2:
