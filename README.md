@@ -1,6 +1,6 @@
 2021.1.28,finished all assignments. 
 
-It takes a month and is worth it.I learned the bottom of computer network,how the TCP works.e.g. the receive part,the send part,three-way handshake,four-way wavehand,under which condition should we linger after the connection is done and send RST to terminate connection.Below the TCP layer,how the data is transmited between the IP layer and LINK layer,in this part serialize,parse and ARP protocol are involved.Finally we are expected a router table with longest-prefix match with O(N) time complexity, i made it with O(1) time complexity.
+It takes a month and is worth it.I learned the bottom of computer network,how the TCP works.
 
 For all labs,something is descripted in the handout and you need to figure out more details by test case,there is bug with GDB,use LLDB instead,most of the commands are the same.
 
@@ -8,7 +8,7 @@ There is still something to do with the optimization,improve the write speed and
 
 ## lab 1:
 
-	The receive part.A reassembler for reassemble the strings you received. They may be out of order ,longer than the capacity or duplicate, or other circumstances you may   not think of, e.g. an empty substring with eof.
+	The receive part.A reassembler for reassemble the strings you received. They may be out of order ,longer than the capacity or duplicate, or other circumstances you may <br> not think of, e.g. an empty substring with eof.
 	
 ## lab 2:
 	The receive part.I put the most receive logic in lab1,so this part didn't take too much time and codes.
